@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 自定义IM协议的编码器
+ * 自定义IM协议的编码器，消息的编解码基于第三方库msgpack
  */
 public class IMDecoder extends ByteToMessageDecoder {
 
@@ -62,15 +62,14 @@ public class IMDecoder extends ByteToMessageDecoder {
 			long time = 0;
 			try{ time = Long.parseLong(heards[1]); } catch(Exception e){}
 			String nickName = heards[2];
+			String receiver = heards[3];
 			//昵称最多十个字
 			nickName = nickName.length() < 10 ? nickName : nickName.substring(0, 9);
 			
 			if(msg.startsWith("[" + IMP.LOGIN.getName() + "]")){
 				return new IMMessage(heards[0],heards[3],time,nickName);
 			}else if(msg.startsWith("[" + IMP.CHAT.getName() + "]")){
-				return new IMMessage(heards[0],time,nickName,content);
-			}else if(msg.startsWith("[" + IMP.FLOWER.getName() + "]")){
-				return new IMMessage(heards[0],heards[3],time,nickName);
+				return new IMMessage(heards[0],time,nickName,receiver,content);
 			}else{
 				return null;
 			}

@@ -38,6 +38,14 @@ public class IMMessage{
 		this.terminal = terminal;
 	}
 
+	public IMMessage(String cmd,long time,String sender,String receiver,String content){
+		this.cmd = cmd;
+		this.time = time;
+		this.sender = sender;
+		this.receiver = receiver;
+		this.content = content;
+	}
+
 
 	public IMMessage(String cmd,long time,String sender,String content){
 		this.cmd = cmd;

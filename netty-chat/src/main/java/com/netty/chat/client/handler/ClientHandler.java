@@ -37,7 +37,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<IMMessage> {
     			        		if("exit".equals(input)){
     			        			message = new IMMessage(IMP.LOGOUT.getName(),"Console",System.currentTimeMillis(),nickName);
     			        		}else{
-    			        			message = new IMMessage(IMP.CHAT.getName(),System.currentTimeMillis(),nickName,input);
+    			        			message = new IMMessage(IMP.CHAT.getName(),System.currentTimeMillis(),nickName,"seussie",input);
     			        		}
     			        	}
     		        }
@@ -55,7 +55,6 @@ public class ClientHandler extends SimpleChannelInboundHandler<IMMessage> {
 		this.ctx = ctx;
 		IMMessage message = new IMMessage(IMP.LOGIN.getName(),"Console",System.currentTimeMillis(),this.nickName);
 		sendMsg(message);
-		log.info("成功连接服务器,已执行登录动作");
 		session();
 	}
 	/**

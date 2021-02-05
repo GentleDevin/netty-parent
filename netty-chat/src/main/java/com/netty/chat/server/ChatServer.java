@@ -12,7 +12,7 @@ import java.net.InetSocketAddress;
 
 /**
  * @Title: 服务端
- * @Description:
+ * @Description: 负责客户端认证及消息转发
  * @Author: Devin 
  * @CreateDate: 2021/02/02 15:12:07
  **/
@@ -30,7 +30,6 @@ public class ChatServer {
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(parentGroup, childGroup)
-                    //阻塞模式
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 1024)
                     .childHandler(new ServerChannelInitializer());
@@ -49,8 +48,6 @@ public class ChatServer {
             childGroup.shutdownGracefully();
         }
     }
-
-
 
     public static void main(String[] args) {
         InetSocketAddress address = null;

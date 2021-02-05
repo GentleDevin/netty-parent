@@ -13,9 +13,7 @@ public enum IMP {
 	/** 登出指令 */
 	LOGOUT("LOGOUT"),
 	/** 聊天消息 */
-	CHAT("CHAT"),
-	/** 送鲜花 */
-	FLOWER("FLOWER");
+	CHAT("CHAT");
 
 	private String name;
 	

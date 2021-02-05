@@ -14,7 +14,7 @@ import java.net.InetSocketAddress;
 
 /**
  * @Title: 客户端
- * @Description:
+ * @Description: 负责客户端消息的发送及接收
  * @Author: Devin
  * @CreateDate: 2021/02/02 17:25:23
  **/
@@ -43,15 +43,15 @@ public class ChatClient {
             workerGroup.shutdownGracefully();
         }
     }
-    
-    
+
     public static void main(String[] args) throws IOException{
         InetSocketAddress address = null;
         if(args.length > 0) {
             address = new InetSocketAddress("localhost", Integer.valueOf(args[0]));
+            new ChatClient(String.valueOf(args[1])).connect(address);
         }else{
             address = new InetSocketAddress("localhost", port);
+            new ChatClient("devin").connect(address);
         }
-        new ChatClient("Cover").connect(address);
     }
 }

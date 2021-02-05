@@ -20,11 +20,12 @@ import io.netty.util.concurrent.GlobalEventExecutor;
  **/
 public class MsgProcessor {
 	
-	//记录在线用户
+	//记录在线用户信息，存放一个个Channel，也可以建立map结构模拟不同的消息群
 	private static ChannelGroup onlineUsers = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-	
+
 	//定义一些扩展属性
-	public static final AttributeKey<String> NICK_NAME = AttributeKey.valueOf("nickName");
+	public static final AttributeKey<String> SENDER_NAME = AttributeKey.valueOf("senderName");
+	public static final AttributeKey<String> RECEIVER_NAME = AttributeKey.valueOf("receiverName");
 	public static final AttributeKey<String> IP_ADDR = AttributeKey.valueOf("ipAddr");
 	public static final AttributeKey<JSONObject> ATTRS = AttributeKey.valueOf("attrs");
 	public static final AttributeKey<String> FROM = AttributeKey.valueOf("from");
@@ -35,13 +36,23 @@ public class MsgProcessor {
 	private IMEncoder encoder = new IMEncoder();
 	
 	/**
-	 * 获取用户昵称
+	 * 获取发送者名称
 	 * @param client
 	 * @return
 	 */
-	public String getNickName(Channel client){
-		return client.attr(NICK_NAME).get();
+	public String getSenderName(Channel client){
+		return client.attr(SENDER_NAME).get();
 	}
+
+	/**
+	 * 获取接收者名称
+	 * @param client
+	 * @return
+	 */
+	public String getReceiverName(Channel client){
+		return client.attr(RECEIVER_NAME).get();
+	}
+
 	/**
 	 * 获取用户远程IP地址
 	 * @param client
@@ -86,10 +97,10 @@ public class MsgProcessor {
 	 * @param client
 	 */
 	public void logout(Channel client){
-		//如果nickName为null，没有遵从聊天协议的连接，表示未非法登录
-		if(getNickName(client) == null){ return; }
+		//如果SenderName为null，没有遵从聊天协议的连接，表示未非法登录
+		if(getSenderName(client) == null){ return; }
 		for (Channel channel : onlineUsers) {
-			IMMessage request = new IMMessage(IMP.SYSTEM.getName(), sysTime(), onlineUsers.size(), getNickName(client) + "离开");
+			IMMessage request = new IMMessage(IMP.SYSTEM.getName(), sysTime(), onlineUsers.size(), getSenderName(client) + "离开");
 			String content = encoder.encode(request);
 			channel.writeAndFlush(new TextWebSocketFrame(content));
 		}
@@ -102,10 +113,9 @@ public class MsgProcessor {
 	 * @param msg
 	 */
 	public void sendMsg(Channel client, IMMessage msg){
-
 		sendMsg(client,encoder.encode(msg));
 	}
-	
+
 	/**
 	 * 发送消息
 	 * @param client
@@ -114,22 +124,22 @@ public class MsgProcessor {
 	public void sendMsg(Channel client, String msg){
 		IMMessage request = decoder.decode(msg);
 		if(null == request){ return; }
-		
+
 		String addr = getAddress(client);
-		
+		//登录指令
 		if(request.getCmd().equals(IMP.LOGIN.getName())){
-			client.attr(NICK_NAME).getAndSet(request.getSender());
+			client.attr(SENDER_NAME).getAndSet(request.getSender());
+			client.attr(RECEIVER_NAME).getAndSet(request.getReceiver());
 			client.attr(IP_ADDR).getAndSet(addr);
 			client.attr(FROM).getAndSet(request.getTerminal());
-//			System.out.println(client.attr(FROM).get());
 			onlineUsers.add(client);
-			
+
 			for (Channel channel : onlineUsers) {
 				boolean isself = (channel == client);
 				if(!isself){
-					request = new IMMessage(IMP.SYSTEM.getName(), sysTime(), onlineUsers.size(), getNickName(client) + "加入");
+					request = new IMMessage(IMP.SYSTEM.getName(), sysTime(), onlineUsers.size(), getSenderName(client) + "加入");
 				}else{
-					request = new IMMessage(IMP.SYSTEM.getName(), sysTime(), onlineUsers.size(), "已与服务器建立连接！");
+					request = new IMMessage(IMP.SYSTEM.getName(), sysTime(), onlineUsers.size(), "成功连接服务器,已执行登录动作");
 				}
 
 				if("Console".equals(channel.attr(FROM).get())){
@@ -141,55 +151,16 @@ public class MsgProcessor {
 			}
 		}else if(request.getCmd().equals(IMP.CHAT.getName())){
 			for (Channel channel : onlineUsers) {
-				boolean isself = (channel == client);
-				if (isself) {
-					request.setSender("you");
-				}else{
-					request.setSender(getNickName(client));
-				}
-				request.setTime(sysTime());
-
-				if("Console".equals(channel.attr(FROM).get()) & !isself){
-					channel.writeAndFlush(request);
-					continue;
-				}
-				String content = encoder.encode(request);
-				channel.writeAndFlush(new TextWebSocketFrame(content));
-			}
-		}else if(request.getCmd().equals(IMP.FLOWER.getName())){
-			JSONObject attrs = getAttrs(client);
-			long currTime = sysTime();
-			if(null != attrs){
-				long lastTime = attrs.getLongValue("lastFlowerTime");
-				//60秒之内不允许重复刷鲜花
-				int secends = 10;
-				long sub = currTime - lastTime;
-				if(sub < 1000 * secends){
-					request.setSender("you");
-					request.setCmd(IMP.SYSTEM.getName());
-					request.setContent("您送鲜花太频繁," + (secends - Math.round(sub / 1000)) + "秒后再试");
-
+					boolean isself = (channel == client);
+					request.setSender(getSenderName(client));
+					request.setTime(sysTime());
+					if("Console".equals(channel.attr(FROM).get()) & !isself){
+						channel.writeAndFlush(request);
+						continue;
+					}
 					String content = encoder.encode(request);
-					client.writeAndFlush(new TextWebSocketFrame(content));
-					return;
+					channel.writeAndFlush(new TextWebSocketFrame(content));
 				}
-			}
-			
-			//正常送花
-			for (Channel channel : onlineUsers) {
-				if (channel == client) {
-					request.setSender("you");
-					request.setContent("你给大家送了一波鲜花雨");
-					setAttrs(client, "lastFlowerTime", currTime);
-				}else{
-					request.setSender(getNickName(client));
-					request.setContent(getNickName(client) + "送来一波鲜花雨");
-				}
-				request.setTime(sysTime());
-				
-				String content = encoder.encode(request);
-				channel.writeAndFlush(new TextWebSocketFrame(content));
-			}
 		}
 	}
 	
