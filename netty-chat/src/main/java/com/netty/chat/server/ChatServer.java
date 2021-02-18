@@ -39,11 +39,6 @@ public class ChatServer {
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
-            if (null != channelFuture && channelFuture.isSuccess()) {
-                logger.info("netty server start done. ");
-            } else {
-                logger.error("netty server start error");
-            }
             parentGroup.shutdownGracefully();
             childGroup.shutdownGracefully();
         }

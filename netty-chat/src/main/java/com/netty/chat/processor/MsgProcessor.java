@@ -1,6 +1,7 @@
 package com.netty.chat.processor;
 
 import com.alibaba.fastjson.JSONObject;
+import com.netty.chat.client.context.ApplicationContext;
 import com.netty.chat.protocol.IMDecoder;
 import com.netty.chat.protocol.IMEncoder;
 import com.netty.chat.protocol.IMMessage;
@@ -12,6 +13,9 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * @Title: 主要用于自定义协议内容的逻辑处理
  * @Description:
@@ -21,8 +25,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 public class MsgProcessor {
 	
 	//记录在线用户信息，存放一个个Channel，也可以建立map结构模拟不同的消息群
-	private static ChannelGroup onlineUsers = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-
+	public static ChannelGroup onlineUsers = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 	//定义一些扩展属性
 	public static final AttributeKey<String> SENDER_NAME = AttributeKey.valueOf("senderName");
 	public static final AttributeKey<String> RECEIVER_NAME = AttributeKey.valueOf("receiverName");
@@ -93,6 +96,20 @@ public class MsgProcessor {
 	}
 
 	/**
+	 * 获取所有在线用户名称
+	 * @param
+	 * @return
+	 */
+	public String getAllUserNames(ChannelGroup onlineUsers){
+		StringBuilder channelStr = new StringBuilder();
+		for (Channel channel : onlineUsers) {
+			String senderName = getSenderName(channel);
+			channelStr.append(senderName + ",");
+		}
+		return channelStr.toString();
+	}
+
+	/**
 	 * 登出通知
 	 * @param client
 	 */
@@ -133,34 +150,38 @@ public class MsgProcessor {
 			client.attr(IP_ADDR).getAndSet(addr);
 			client.attr(FROM).getAndSet(request.getTerminal());
 			onlineUsers.add(client);
-
+			ApplicationContext.putChannel(client);
 			for (Channel channel : onlineUsers) {
 				boolean isself = (channel == client);
 				if(!isself){
 					request = new IMMessage(IMP.SYSTEM.getName(), sysTime(), onlineUsers.size(), getSenderName(client) + "加入");
 				}else{
-					request = new IMMessage(IMP.SYSTEM.getName(), sysTime(), onlineUsers.size(), "成功连接服务器,已执行登录动作");
+					request = new IMMessage(IMP.SYSTEM.getName(), sysTime(), getSenderName(client),getReceiverName(client),"在线用户信息："+ApplicationContext.onlineUserInfos(onlineUsers));
 				}
-
 				if("Console".equals(channel.attr(FROM).get())){
 					channel.writeAndFlush(request);
 					continue;
 				}
-				String content = encoder.encode(request);
-				channel.writeAndFlush(new TextWebSocketFrame(content));
 			}
 		}else if(request.getCmd().equals(IMP.CHAT.getName())){
-			for (Channel channel : onlineUsers) {
-					boolean isself = (channel == client);
-					request.setSender(getSenderName(client));
-					request.setTime(sysTime());
-					if("Console".equals(channel.attr(FROM).get()) & !isself){
-						channel.writeAndFlush(request);
-						continue;
+			if(request.getReceiver().equals("-1")) {
+					for (Channel channel : onlineUsers) {
+						boolean isself = (channel == client);
+						request.setCmd(IMP.CHAT.getName());
+						request.setSender(getSenderName(client));
+						request.setTime(sysTime());
+						if("Console".equals(channel.attr(FROM).get()) & !isself){
+							channel.writeAndFlush(request);
+							continue;
+						}
 					}
-					String content = encoder.encode(request);
-					channel.writeAndFlush(new TextWebSocketFrame(content));
+				}else{
+				if( null != request.getReceiver()) {
+					Map<String, Channel> allChannels = ApplicationContext.getAllChannels();
+					Channel channel = allChannels.get(request.getReceiver());
+					channel.writeAndFlush(request);
 				}
+			}
 		}
 	}
 	
