@@ -1,9 +1,10 @@
 package com.netty.rpc.server;
 
-import com.netty.commons.Request;
-import com.netty.commons.Response;
-import com.netty.commons.codec.RpcDecoder;
-import com.netty.commons.codec.RpcEncoder;
+import com.netty.rpc.codec.Request;
+import com.netty.rpc.codec.Response;
+
+import com.netty.rpc.codec.RpcDecoder;
+import com.netty.rpc.codec.RpcEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;

@@ -1,8 +1,8 @@
 package com.netty.rpc.server;
 
 import com.google.gson.Gson;
-import com.netty.commons.Request;
-import com.netty.commons.Response;
+import com.netty.rpc.codec.Request;
+import com.netty.rpc.codec.Response;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

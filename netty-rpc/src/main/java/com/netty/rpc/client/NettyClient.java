@@ -1,10 +1,11 @@
 package com.netty.rpc.client;
 
 import com.google.gson.Gson;
-import com.netty.commons.Request;
-import com.netty.commons.Response;
-import com.netty.commons.codec.RpcDecoder;
-import com.netty.commons.codec.RpcEncoder;
+
+import com.netty.rpc.codec.Request;
+import com.netty.rpc.codec.Response;
+import com.netty.rpc.codec.RpcDecoder;
+import com.netty.rpc.codec.RpcEncoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
