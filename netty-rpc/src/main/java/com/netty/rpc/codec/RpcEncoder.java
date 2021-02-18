@@ -1,11 +1,9 @@
-package com.netty.commons.codec;
+package com.netty.rpc.codec;
 
 import com.netty.commons.utils.ProtostuffUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-
-import static org.apache.logging.log4j.message.MapMessage.MapFormat.JSON;
 
 /**
  * @Title: 自定义编码器

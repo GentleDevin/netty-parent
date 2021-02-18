@@ -1,4 +1,4 @@
-package com.netty.commons;
+package com.netty.rpc.codec;
 
 import lombok.Builder;
 import lombok.Data;

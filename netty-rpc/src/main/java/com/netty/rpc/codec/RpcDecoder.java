@@ -1,10 +1,9 @@
-package com.netty.commons.codec;
+package com.netty.rpc.codec;
 
 import com.netty.commons.utils.ProtostuffUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.protostuff.ProtostuffIOUtil;
 
 import java.util.List;
 

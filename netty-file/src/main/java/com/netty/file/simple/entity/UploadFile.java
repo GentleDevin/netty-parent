@@ -1,4 +1,4 @@
-package com.netty.commons.file;
+package com.netty.file.simple.entity;
 
 import lombok.Data;
 
@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @CreateDate: 2021/01/29 17:03:57
  **/
 @Data
-public class NettyUploadFile implements Serializable {
+public class UploadFile implements Serializable {
 
     //文件名
     private String fileName;
