@@ -1,6 +1,5 @@
 package com.netty.file.simple.server;
 
-import com.netty.file.simple.client.ClientHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

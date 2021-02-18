@@ -1,6 +1,6 @@
 package com.netty.file.simple.client;
 
-import com.netty.commons.file.NettyUploadFile;
+import com.netty.file.simple.entity.UploadFile;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -29,7 +29,7 @@ public class NettyClient {
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
     private Channel channel;
 
-    public ChannelFuture connect(String host, int port, final NettyUploadFile nettyUploadFile) {
+    public ChannelFuture connect(String host, int port, final UploadFile nettyUploadFile) {
         ChannelFuture channelFuture = null;
         try {
             Bootstrap b = new Bootstrap();
@@ -57,8 +57,8 @@ public class NettyClient {
         workerGroup.shutdownGracefully();
     }
 
-    public static NettyUploadFile init() {
-        NettyUploadFile nettyUploadFile = new NettyUploadFile();
+    public static UploadFile init() {
+        UploadFile nettyUploadFile = new UploadFile();
         File file = new File("C:\\Users\\gentl\\Desktop\\video.mp4");
         nettyUploadFile.setFileName(file.getName());
         nettyUploadFile.setFileLength(file.length());
@@ -69,7 +69,7 @@ public class NettyClient {
     }
 
     public static void main(String[] args) {
-        NettyUploadFile nettyUploadFile = init();
+        UploadFile nettyUploadFile = init();
 
         new NettyClient().connect("127.0.0.1", 6666, nettyUploadFile);
     }

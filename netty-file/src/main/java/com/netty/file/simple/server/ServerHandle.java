@@ -1,7 +1,6 @@
 package com.netty.file.simple.server;
 
-import com.netty.commons.file.NettyUploadFile;
-import com.netty.file.simple.client.ClientHandler;
+import com.netty.file.simple.entity.UploadFile;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
@@ -20,7 +19,15 @@ import java.io.RandomAccessFile;
 public class ServerHandle extends ChannelInboundHandlerAdapter {
 
     private static Logger LOGGER= LogManager.getLogger(ServerHandle.class.getName());
+    /**
+     *  文件读字节大小,默认一次读100KB
+     **/
     private int byteRead;
+    /**
+     *  文件已读完文件大小
+     *  服务端文件读字节开始位置，每次读完一次byteRead改变
+     *  start = start + byteRead;
+     **/
     private volatile long start = 0;
     private RandomAccessFile randomAccessFile;
     private String rootPath = "D:\\upload";
@@ -52,11 +59,11 @@ public class ServerHandle extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
             //实体类验证
-            if (!(msg instanceof NettyUploadFile)) {
+            if (!(msg instanceof UploadFile)) {
                 return;
             }
             //开始对上传文件进行处理
-            NettyUploadFile ef = (NettyUploadFile) msg;
+            UploadFile ef = (UploadFile) msg;
             byte[] bytes = ef.getBytes();
             byteRead = ef.getEndPos();
             Long fileLength = ef.getFileLength();
@@ -79,7 +86,7 @@ public class ServerHandle extends ChannelInboundHandlerAdapter {
                     if (starPos == start) {
                         fileBreakpointUpload(ctx, bytes, fileName, file);
                     } else {
-                        //不等于断点位置，回写给客户端
+                        //不等于断点位置，回写当前文件大小给客户端
                         ctx.writeAndFlush(saveFileLength);
                     }
                 }
@@ -106,13 +113,12 @@ public class ServerHandle extends ChannelInboundHandlerAdapter {
     private void fileBreakpointUpload(ChannelHandlerContext ctx, byte[] bytes, String fileName, File file) throws Exception {
         //r: 只读模式 rw:读写模式
         randomAccessFile = new RandomAccessFile(file, "rw");
-        //移动文件记录指针的位置,
+        //移动文件记录指针的位置, 程序将从start字节开始写数据
         randomAccessFile.seek(start);
-        //调用了seek（start）方法，是指把文件的记录指针定位到start字节的位置。也就是说程序将从start字节开始写数据
         randomAccessFile.write(bytes);
         start = start + byteRead;
         if (byteRead > 0) {
-            //向客户端发送消息
+            //向客户端发送文件新的开始位置
             ctx.writeAndFlush(start);
             randomAccessFile.close();
             if (byteRead != 1024 * 100) {
@@ -132,6 +138,7 @@ public class ServerHandle extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.close();
+        cause.printStackTrace();
         LOGGER.info("出现异常->" + cause.getMessage());
     }
 }

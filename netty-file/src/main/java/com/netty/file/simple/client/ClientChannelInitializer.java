@@ -1,6 +1,6 @@
 package com.netty.file.simple.client;
 
-import com.netty.commons.file.NettyUploadFile;
+import com.netty.file.simple.entity.UploadFile;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
  **/
 public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private NettyUploadFile nettyUploadFile;
+    private UploadFile nettyUploadFile;
 
-    public ClientChannelInitializer(NettyUploadFile nettyUploadFile) {
+    public ClientChannelInitializer(UploadFile nettyUploadFile) {
         this.nettyUploadFile = nettyUploadFile;
     }
 
@@ -31,8 +31,8 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
         channel.pipeline().addLast(new ObjectEncoder());
         channel.pipeline().addLast(new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(null)));
         //读写超时时间
-        channel.pipeline().addLast(new ReadTimeoutHandler(20000, TimeUnit.MILLISECONDS));
-        channel.pipeline().addLast(new WriteTimeoutHandler(20000, TimeUnit.MILLISECONDS));
+        channel.pipeline().addLast(new ReadTimeoutHandler(30, TimeUnit.MINUTES));
+        channel.pipeline().addLast(new WriteTimeoutHandler(30, TimeUnit.MINUTES));
         //增加传输数据的实现方法
         channel.pipeline().addLast(new ClientHandler(nettyUploadFile));
 

@@ -1,6 +1,6 @@
 package com.netty.file.simple.client;
 
-import com.netty.commons.file.NettyUploadFile;
+import com.netty.file.simple.entity.UploadFile;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.apache.logging.log4j.LogManager;
@@ -16,14 +16,25 @@ import java.io.RandomAccessFile;
  **/
 public class ClientHandler extends ChannelInboundHandlerAdapter {
     private static Logger LOGGER= LogManager.getLogger(ClientHandler.class.getName());
-    private NettyUploadFile nettyUploadFile;
+    private UploadFile nettyUploadFile;
+    /**
+     *  每次实际读完文件字节大小
+     **/
     private int byteRead;
+    /**
+     *
+     *  服务端返回的读文件开始位置
+     *  start = start + byteRead;
+     **/
     private volatile long start = 0;
+    /**
+     *  文件读字节大小,默认一次读100KB
+     **/
     private volatile int lastLength = 0;
     public RandomAccessFile randomAccessFile;
 
 
-    public ClientHandler(NettyUploadFile nettyUploadFile) {
+    public ClientHandler(UploadFile nettyUploadFile) {
         if (nettyUploadFile.getFile().exists()) {
             if (!nettyUploadFile.getFile().isFile()) {
                 LOGGER.info("Not a file :" + nettyUploadFile.getFileName());
@@ -63,7 +74,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             randomAccessFile = new RandomAccessFile(nettyUploadFile.getFile(), "r");
             randomAccessFile.seek(nettyUploadFile.getStarPos());
             Long fileLength = nettyUploadFile.getFileLength();
-
+             //文件大小是否大于100KB
             if (fileLength >= 1024 * 100) {
                 lastLength = 1024 * 100;
             } else {
@@ -92,7 +103,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         if (!(msg instanceof Long)) {
             return;
         }
-
         try {
             start = (Long) msg;
             Long fileLength = nettyUploadFile.getFileLength();
@@ -101,6 +111,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 randomAccessFile = new RandomAccessFile(nettyUploadFile.getFile(), "r");
                 //将文件定位到start
                 randomAccessFile.seek(start);
+                //每次读完文件剩余大小
                 Long a = randomAccessFile.length() - start;
                 if (a < lastLength) {
                     lastLength = a.intValue();
@@ -133,6 +144,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.close();
+        cause.printStackTrace();
+
         LOGGER.error("出现异常-> " + cause.getMessage());
     }
 }

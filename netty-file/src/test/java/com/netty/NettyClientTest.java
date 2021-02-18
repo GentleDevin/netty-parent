@@ -1,6 +1,6 @@
 package com.netty;
 
-import com.netty.commons.file.NettyUploadFile;
+import com.netty.file.simple.entity.UploadFile;
 import com.netty.file.simple.client.NettyClient;
 
 import java.io.File;
@@ -12,8 +12,8 @@ import java.io.File;
  **/
 public class NettyClientTest {
 
-    public static NettyUploadFile init() {
-        NettyUploadFile nettyUploadFile = new NettyUploadFile();
+    public static UploadFile init() {
+        UploadFile nettyUploadFile = new UploadFile();
         File file = new File("C:\\Users\\gentl\\Desktop\\微信图片_20210130215351.jpg");
         nettyUploadFile.setFileName(file.getName());
         nettyUploadFile.setFileLength(file.length());
@@ -25,7 +25,7 @@ public class NettyClientTest {
 
 
     public static void main(String[] args) {
-        NettyUploadFile nettyUploadFile = init();
+        UploadFile nettyUploadFile = init();
 
         new NettyClient().connect("127.0.0.1", 9999, nettyUploadFile);
     }
