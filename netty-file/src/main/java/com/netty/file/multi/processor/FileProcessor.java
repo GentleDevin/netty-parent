@@ -21,11 +21,12 @@ public class FileProcessor {
 
      /**
      *  每次实际读完文件字节大小
+      *  byteRead <= 100KB
      **/
     private int byteRead;
     /**
      *
-     *  服务端返回的读文件开始位置
+     *  服务端返回的读文件开始位置，也就是当前文件读取进度
      *  start = start + byteRead;
      **/
     private volatile long start = 0;
@@ -98,8 +99,6 @@ public class FileProcessor {
                 if (a < lastLength) {
                     lastLength = a.intValue();
                 }
-                System.out.println("nettyUploadFile:" + nettyUploadFile.getFile());
-
                 byte[] bytes = new byte[lastLength];
                 if ((byteRead = randomAccessFile.read(bytes)) != -1 && a > 0) {
                     nettyUploadFile.setStarPos(start);
@@ -154,7 +153,7 @@ public class FileProcessor {
                     }
                 }
             } else {
-                //文件不存在，从0开始上传
+                //文件不存在，从文件位置0开始上传
                 fileBreakpointUpload(ctx, bytes, fileName, file);
             }
         } finally {
