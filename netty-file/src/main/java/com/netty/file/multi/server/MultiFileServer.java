@@ -12,8 +12,8 @@ import org.apache.logging.log4j.Logger;
 
 
 /**
- * @Title: Netty服务端上传文件
- * @Description:
+ * @Title: Netty服务端文件上传
+ * @Description: 上传客户端发送的文件夹或文件
  * @Author: Devin
  * @CreateDate: 2021/01/29 17:10:52
  **/
@@ -25,7 +25,13 @@ public class MultiFileServer {
     private EventLoopGroup bossGroup = new NioEventLoopGroup();
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
     private Channel channel;
-
+    
+    /**
+     * @Description: 服务端绑定端口
+     * @CreateDate: 2021/02/23 11:19:05
+     * @param port: 
+     * @return: io.netty.channel.ChannelFuture
+     **/
     public ChannelFuture bind(int port) {
         ChannelFuture channelFuture = null;
         try {
@@ -37,6 +43,7 @@ public class MultiFileServer {
                     .childHandler(new ServerChannelInitializer());
             channelFuture = b.bind(port).syncUninterruptibly();
             this.channel = channelFuture.channel();
+            LOGGER.info("服务端已经启动成功");
         } catch (Exception e) {
             LOGGER.error("文件上传服务端出现异常-> ", e);
         }finally {

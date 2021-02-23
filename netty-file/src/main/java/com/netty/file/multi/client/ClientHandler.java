@@ -11,8 +11,8 @@ import java.io.File;
 import java.io.RandomAccessFile;
 
 /**
- * @Title: 客户端文件上传具体实现方法
- * @Description:
+ * @Title: 客户端上传具体实现方法
+ * @Description:  上传文件夹或文件到服务端
  * @Author: Devin
  * @CreateDate: 2021/01/29 17:05:54
  **/
@@ -22,19 +22,9 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private FileProcessor fileProcessor = new FileProcessor();
 
     /**
-     *  每次实际读完文件字节大小
+     * 统计每次读文件次数
      **/
-    private int byteRead;
-    /**
-     *
-     *  服务端返回的读文件开始位置
-     *  start = start + byteRead;
-     **/
-    private volatile long start = 0;
-    /**
-     *  文件读字节大小,默认一次读100KB
-     **/
-    private volatile int lastLength = 0;
+    private  int readCount = 0;
     public RandomAccessFile randomAccessFile;
 
 
@@ -54,12 +44,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * channelRead执行后触发
-     * channelReadComplete channel 通道 Read 读取 Complete 完成
      * 在通道读取完成后会在这个方法里通知，对应可以做刷新操作 ctx.flush()
      */
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.info("客户端读取通道完成" );
+        LOGGER.info("客户端读取通道完成" + ++readCount);
         ctx.flush();
     }
 
@@ -78,7 +67,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        fileProcessor.clientChannelRead(ctx,msg);
+        if (!(msg instanceof UploadFile)) {
+            return;
+        }
+        UploadFile uploadFile = (UploadFile)msg;
+        fileProcessor.clientReadFile(ctx,uploadFile);
     }
 
     /**

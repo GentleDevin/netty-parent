@@ -1,5 +1,6 @@
 package com.netty.file.multi.client;
 
+import com.netty.file.multi.common.FileConfig;
 import com.netty.file.multi.common.FileUtil;
 import com.netty.file.multi.common.UploadFile;
 import io.netty.bootstrap.Bootstrap;
@@ -15,8 +16,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 
 /**
- * @Title: 客户端文件上传
- * @Description:
+ * @Title: Netty客户端文件上传
+ * @Description: 发送文件夹或文件给服务端
  * @Author: Devin
  * @CreateDate: 2021/01/29 17:06:29
  **/
@@ -30,6 +31,14 @@ public class MultiFileClient {
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
     private Channel channel;
 
+    /**
+     * @Description: 连接服务端
+     * @CreateDate: 2021/02/23 11:21:28
+     * @param host: 服务端IP地址
+     * @param port: 服务端端口
+     * @param nettyUploadFile: 
+     * @return: io.netty.channel.ChannelFuture
+     **/
     public ChannelFuture connect(String host, int port, final UploadFile nettyUploadFile) {
         ChannelFuture channelFuture = null;
         try {
@@ -60,7 +69,7 @@ public class MultiFileClient {
 
 
     public static void main(String[] args) {
-        UploadFile nettyUploadFile = FileUtil.initUploadFile(new File(FileUtil.CLIENT_UPLOAD_PATH+FileUtil.CLIENT_FILE_PATH));
+        UploadFile nettyUploadFile = FileUtil.initUploadFile(new File(FileConfig.CLIENT_UPLOAD_PATH+FileConfig.CLIENT_FILE_PATH));
         new MultiFileClient().connect("127.0.0.1", 6666, nettyUploadFile);
     }
 

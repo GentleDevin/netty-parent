@@ -30,7 +30,7 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
         //使用默认的编码解码传输
         channel.pipeline().addLast(new ObjectEncoder());
         channel.pipeline().addLast(new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(null)));
-        //读写超时时间
+        //读写超时时间30分钟
         channel.pipeline().addLast(new ReadTimeoutHandler(30, TimeUnit.MINUTES));
         channel.pipeline().addLast(new WriteTimeoutHandler(30, TimeUnit.MINUTES));
         //增加传输数据的实现方法
