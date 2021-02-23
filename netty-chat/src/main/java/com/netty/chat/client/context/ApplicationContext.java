@@ -19,7 +19,6 @@ import java.util.Map;
 public class ApplicationContext {
     public static Map<Integer, ChannelHandlerContext> onlineUsers = new HashMap<Integer,ChannelHandlerContext>();
     public static Map<String, Channel> allChannels = new HashMap<String,Channel>();
-    private MsgProcessor processor = new MsgProcessor();
 
     public static void add(Integer uid,ChannelHandlerContext ctx){
         onlineUsers.put(uid,ctx);

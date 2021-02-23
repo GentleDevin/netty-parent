@@ -1,21 +1,13 @@
 package com.netty.chat.client.handler;
 
-import com.netty.chat.client.context.ApplicationContext;
-import com.netty.chat.processor.MsgProcessor;
 import com.netty.chat.protocol.IMMessage;
 import com.netty.chat.protocol.IMP;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelId;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.group.ChannelGroup;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Scanner;
-
-import static com.netty.chat.processor.MsgProcessor.onlineUsers;
 
 /**
  * @Title: 聊天客户端逻辑实现
@@ -25,8 +17,6 @@ import static com.netty.chat.processor.MsgProcessor.onlineUsers;
  **/
 @Slf4j
 public class ClientHandler extends SimpleChannelInboundHandler<IMMessage> {
-	private MsgProcessor processor = new MsgProcessor();
-
 	private ChannelHandlerContext ctx;
 	private String nickName;
 	public ClientHandler(String nickName){
