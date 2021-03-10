@@ -1,6 +1,7 @@
 package com.netty.gnss.strategy;
 
 import com.netty.gnss.common.ParseKey;
+import com.netty.gnss.strategy.impl.RangeCmpParse;
 import com.netty.gnss.strategy.impl.RangeParse;
 
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class GnssParseFactory {
 
     static {
         gnssParseMap.put(ParseKey.MSG_ID_43.getKey(),new RangeParse());
-        gnssParseMap.put(ParseKey.MSG_ID_140.getKey(),new RangeParse());
+        gnssParseMap.put(ParseKey.MSG_ID_140.getKey(),new RangeCmpParse());
     }
 
     public static IGnssParse getGnssParseStrategy(Short ParseKey)  {

@@ -1,4 +1,4 @@
-package com.netty.gnss.processor;
+package com.netty.gnss.common;
 
 public class CrcValidate {
 

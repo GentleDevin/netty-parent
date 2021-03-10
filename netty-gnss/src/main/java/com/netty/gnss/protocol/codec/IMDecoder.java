@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class IMDecoder extends ByteToMessageDecoder {
 	private static Logger LOGGER= LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
-	private final int BASE_LENGTH = 4;
+	private final int BASE_LENGTH = 6;
 	private int msgLength = 0;
 	private ServerMsgProcessor msgProcessor = new ServerMsgProcessor();
 
@@ -33,6 +33,8 @@ public class IMDecoder extends ByteToMessageDecoder {
 				return;
 			}
 			out.add(imMessage);
+		}else{
+			System.out.println("readableBytes=" +in.readableBytes());
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package com.netty;
 
+import com.netty.gnss.common.ByteUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import org.apache.commons.io.FileUtils;
@@ -20,7 +21,8 @@ public class Test {
     public static void main(String[] args) {
        // byteOrderConvert();
         //byteConvert();
-        testGnssStatus();
+       // testGnssStatus();
+        testBit();
     }
 
 
@@ -75,4 +77,14 @@ public class Test {
         System.out.println("str2= "  +str2);
 
     }
+
+    public static void testBit() {
+        byte num = (byte) 170;
+        int leftNum = ByteUtil.getLeftNum(num, 4);
+        System.out.println("leftNum= " + leftNum);
+    }
+
+
 }
+
+

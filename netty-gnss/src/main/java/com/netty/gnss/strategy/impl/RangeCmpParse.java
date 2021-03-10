@@ -26,7 +26,10 @@ public class RangeCmpParse implements IGnssParse {
             Range range = new Range();
             range.setChTrStatus(in.readIntLE());
 
-            range.setPrnOrSlot(in.readShortLE());
+
+
+
+           /* range.setPrnOrSlot(in.readShortLE());
             range.setGlofreq(in.readShortLE());
             range.setPsr(in.readDoubleLE());
             range.setPsrStd(in.readFloatLE());
@@ -34,7 +37,7 @@ public class RangeCmpParse implements IGnssParse {
             range.setAdrStd(in.readFloatLE());
             range.setDopp(in.readFloatLE());
             range.setCOrNo(in.readFloatLE());
-            range.setLocktime(in.readFloatLE());
+            range.setLocktime(in.readFloatLE());*/
             imContentList.add(range);
         }
             //报文数据已解析完成

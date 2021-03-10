@@ -1,5 +1,6 @@
 package com.netty.gnss.processor;
 
+import com.netty.gnss.common.CrcValidate;
 import com.netty.gnss.common.ParseKey;
 import com.netty.gnss.protocol.IMContent;
 import com.netty.gnss.protocol.IMMessage;
@@ -22,7 +23,7 @@ import java.util.Map;
  * @CreateDate: 2021/02/24 16:48:47
  **/
 public class ServerMsgProcessor {
-	private final int BASE_LENGTH = 4;
+	private final int BASE_LENGTH = 6;
 	// 记录包头开始的index
 	private int beginReader = 0;
 	private int countHeader;
@@ -36,7 +37,9 @@ public class ServerMsgProcessor {
 
 	static {
 		msgIdMap = new HashMap();
-		msgIdMap.put(ParseKey.MSG_ID_43.getKey(),ParseKey.MSG_ID_43.getValue());
+		/*msgIdMap.put(ParseKey.MSG_ID_43.getKey(),ParseKey.MSG_ID_43.getValue());*/
+		msgIdMap.put(ParseKey.MSG_ID_140.getKey(),ParseKey.MSG_ID_140.getValue());
+
 	}
 
 	public IMMessage parseGnss(ByteBuf in){
@@ -48,7 +51,7 @@ public class ServerMsgProcessor {
 		//头部信息匹配成功
 		if(imMessage.isHeaderMatch()) {
 			if (crcValidate(in)) {
-				IGnssParse gnssParseStrategy = GnssParseFactory.getGnssParseStrategy(ParseKey.MSG_ID_43.getKey());
+				IGnssParse gnssParseStrategy = GnssParseFactory.getGnssParseStrategy(ParseKey.MSG_ID_140.getKey());
 				gnssParseStrategy.gnssParse(in,imMessage);
 			}
 		}
@@ -77,6 +80,7 @@ public class ServerMsgProcessor {
 			}
 			// 可读数据不够基本数据长度，等待后面缓冲区数据到达
 			if (in.readableBytes() < BASE_LENGTH) {
+				imMessage.setReadable(false);
 				break;
 			}
 		}
@@ -106,7 +110,7 @@ public class ServerMsgProcessor {
 		imContent.setObs(in.readIntLE());
 		imMessage.setImContent(imContent);
 
-		// 标记包头开始的index
+		// 标记报文数据开始的index
 		in.markReaderIndex();
 		imMessage.setHeaderMatch(true);
 		System.out.println("match head=" + ++countHeader);
@@ -175,4 +179,15 @@ public class ServerMsgProcessor {
 			e.printStackTrace();
 		}
 	}
+
+
+
+	public void readByteByNum(ByteBuf in,byte num){
+		byte data = 0;
+		for (int i = 0; i < num; i++) {
+			data +=  in.readByte();
+		}
+	}
+
+
 }
