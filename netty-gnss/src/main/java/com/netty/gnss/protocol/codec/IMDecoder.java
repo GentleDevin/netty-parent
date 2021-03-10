@@ -11,10 +11,13 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 
 /**
- * 自定义IM协议的编码器
- */
+ * @Title: 自定义IM协议的编码器
+ * @Description:
+ * @Author: Devin 
+ * @CreateDate: 2021/03/10 11:40:36
+ **/
 public class IMDecoder extends ByteToMessageDecoder {
-	private static Logger LOGGER= LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+	private static Logger logger= LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 	private final int BASE_LENGTH = 6;
 	private int msgLength = 0;
 	private ServerMsgProcessor msgProcessor = new ServerMsgProcessor();

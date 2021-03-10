@@ -40,5 +40,4 @@ public class GnssClient {
         InetSocketAddress address = new InetSocketAddress("localhost", port);
         new GnssClient().connect(address);
     }
-
 }

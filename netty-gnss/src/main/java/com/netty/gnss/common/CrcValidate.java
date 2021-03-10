@@ -1,5 +1,11 @@
 package com.netty.gnss.common;
 
+/**
+ * @Title: CRC校验工具
+ * @Description:
+ * @Author: Devin
+ * @CreateDate: 2021/03/10 11:28:33
+ **/
 public class CrcValidate {
 
     static final int[] CRC24Q_TABLE = {
@@ -45,6 +51,13 @@ public class CrcValidate {
         return crc;
     }
 
+    /**
+     * @Description: 32位CRC校验
+     * @CreateDate: 2021/03/10 11:28:59
+     * @param buf:
+     * @param byteLength:
+     * @return: long
+     **/
     public static long crc32(byte[] buf, int byteLength) {
         long crc32 = 0;
         long POLY_CRC32 = 3988292384L;

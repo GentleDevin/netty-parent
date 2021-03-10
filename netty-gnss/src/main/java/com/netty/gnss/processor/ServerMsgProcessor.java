@@ -23,25 +23,34 @@ import java.util.Map;
  * @CreateDate: 2021/02/24 16:48:47
  **/
 public class ServerMsgProcessor {
+	//固定的基本长度
 	private final int BASE_LENGTH = 6;
-	// 记录包头开始的index
+	//记录包头开始的index
 	private int beginReader = 0;
+	//匹配头数量
 	private int countHeader;
+	//初始化GNSS解析信息ID
 	static Map<Short, String> msgIdMap = null;
-
+    //GNSS报文消息类
 	private IMMessage imMessage = new IMMessage();
 
 	//字节数组CRC校验
 	private byte[] bytesCrc = null;
+	//CRC校验失败统计
 	private int countCrcFailure;
 
 	static {
 		msgIdMap = new HashMap();
 		/*msgIdMap.put(ParseKey.MSG_ID_43.getKey(),ParseKey.MSG_ID_43.getValue());*/
 		msgIdMap.put(ParseKey.MSG_ID_140.getKey(),ParseKey.MSG_ID_140.getValue());
-
 	}
 
+	/**
+	 * @Description: 解析GNSS数据
+	 * @CreateDate: 2021/03/10 11:25:01
+	 * @param in: 
+	 * @return: com.netty.gnss.protocol.IMMessage
+	 **/
 	public IMMessage parseGnss(ByteBuf in){
 		// 开始匹配头部信息
 		if(!imMessage.isHeaderMatch()) {
@@ -58,6 +67,13 @@ public class ServerMsgProcessor {
 		return imMessage;
 	}
 
+	/**
+	 * @Description: 匹配头部信息
+	 * @CreateDate: 2021/03/10 11:25:37
+	 * @param in:
+	 * @param msgMap:
+	 * @return: com.netty.gnss.protocol.IMMessage
+	 **/
 	public IMMessage matchHeader(ByteBuf in, Map<Short, String> msgMap) {
 		while (true) {
 			// 获取报文开始的index
@@ -87,14 +103,22 @@ public class ServerMsgProcessor {
 		return imMessage;
 	}
 
+	/**
+	 * @Description: 解析头部信息
+	 * @CreateDate: 2021/03/10 11:34:13
+	 * @param in:
+	 * @param headerLength:
+	 * @param messageID:
+	 * @return: com.netty.gnss.protocol.IMMessage
+	 **/
 	public IMMessage parseHeader(ByteBuf in, Byte headerLength, Short messageID){
 		imMessage = new IMMessage();
-
+		//头部信息类
 		IMHeader imHeader = new IMHeader();
 		imHeader.setHeaderLength(headerLength);
 		imHeader.setMessageID(messageID);
-
-		in.skipBytes(2);
+		imHeader.setMessageType(in.readByte());
+		in.skipBytes(1);
 		imHeader.setMessageLength(in.readShortLE());
 		in.skipBytes(2);
 		imHeader.setIdleTime(in.readByte());
@@ -105,7 +129,7 @@ public class ServerMsgProcessor {
 		imHeader.setBdsToGpsTime(in.readShortLE());
 		in.skipBytes(2);
 		imMessage.setImHeader(imHeader);
-
+		//消息内容类
 		IMContent imContent = new IMContent();
 		imContent.setObs(in.readIntLE());
 		imMessage.setImContent(imContent);
@@ -117,6 +141,12 @@ public class ServerMsgProcessor {
 		return imMessage;
 	}
 
+	/**
+	 * @Description: 提前CRC校验，防止丢包数据不全
+	 * @CreateDate: 2021/03/10 11:26:39
+	 * @param in:
+	 * @return: boolean
+	 **/
 	public boolean crcValidate(ByteBuf in) {
 		//消息总长度，不包括CRC32位长度
 		int msgLength = imMessage.getImHeader().getHeaderLength() + imMessage.getImHeader().getMessageLength();
@@ -132,18 +162,19 @@ public class ServerMsgProcessor {
 		//提前跳到CRC校验的位置
 		in.skipBytes(imMessage.getImHeader().getMessageLength() - 4);
 
-		//提前CRC校验，防止丢包数据不全
+		//读取发送过来的CRC值
 		imMessage.setCrc(in.readIntLE());
 		bytesCrc = new byte[msgLength];
+		//获取发送的二进制数据
 		in.getBytes(beginReader,bytesCrc);
 		imMessage.setImBytes(bytesCrc);
+		//通过公式计算发送的二进制数据CRC值
 		long readBytesCrc = CrcValidate.crc32(bytesCrc, bytesCrc.length);
 		boolean crcValidateResult = imMessage.getCrc() == readBytesCrc;
 
 		//CRC校验失败，直接丢弃整包数据
 		if(!crcValidateResult) {
 			//Todo 优化跳过丢包数据
-
 			//进入下一次报文头部匹配
 			imMessage.setHeaderMatch(false);
 			System.out.println("countCrcFailure="+ ++countCrcFailure);
@@ -152,6 +183,7 @@ public class ServerMsgProcessor {
 
 		//保存每个报文的二进制文件
 		/*saveGnssFile(in,beginReader,msgLength);*/
+		//重置当前读索引到数据解析前读索引
 		in.resetReaderIndex();
 		return true;
 	}

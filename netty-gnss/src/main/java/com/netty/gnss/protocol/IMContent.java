@@ -1,6 +1,5 @@
 package com.netty.gnss.protocol;
 
-import com.netty.gnss.protocol.header.IMHeader;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

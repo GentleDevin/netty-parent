@@ -16,7 +16,6 @@ import java.io.IOException;
  **/
 @Slf4j
 public class GnssClientHandler extends SimpleChannelInboundHandler<IMMessage> {
-	private ChannelHandlerContext ctx;
 	private ClientMsgProcessor msgProcessor = new ClientMsgProcessor();
 
     /**
@@ -24,7 +23,6 @@ public class GnssClientHandler extends SimpleChannelInboundHandler<IMMessage> {
 	 */
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		this.ctx = ctx;
 		msgProcessor.sendMsg(ctx.channel());
 	}
 

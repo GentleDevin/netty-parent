@@ -1,6 +1,5 @@
 package com.netty.gnss.protocol.header;
 
-import com.netty.gnss.protocol.IMMessage;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -77,6 +76,5 @@ public class IMHeader {
      *  保留字段3
      **/
     private Short reserved3;
-
 
 }
