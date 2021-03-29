@@ -20,7 +20,10 @@ public class ClientMsgProcessor {
 	 * @return: void
 	 **/
     public void initMsgData(Channel channel){
+/*
         String filePath = "C:\\Users\\gentl\\Desktop\\Todo\\WorkPlan\\GNSS\\WFSXJ9-G9-R-2020-10-23-06";
+*/
+		String filePath = "C:\\Users\\gentl\\Desktop\\Todo\\WorkPlan\\GNSS\\range140";
 		InputStream in = null;
 		BufferedInputStream buffer = null;
 		DataInputStream dataIn = null;

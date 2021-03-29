@@ -1,7 +1,7 @@
 package com.netty.gnss.processor;
 
 import com.netty.gnss.common.CrcValidate;
-import com.netty.gnss.common.ParseKey;
+import com.netty.gnss.common.ParseKeyEnum;
 import com.netty.gnss.protocol.IMContent;
 import com.netty.gnss.protocol.IMMessage;
 import com.netty.gnss.protocol.header.IMHeader;
@@ -23,26 +23,42 @@ import java.util.Map;
  * @CreateDate: 2021/02/24 16:48:47
  **/
 public class ServerMsgProcessor {
-	//固定的基本长度
+	/**
+	 *  固定的基本长度
+	 **/
 	private final int BASE_LENGTH = 6;
-	//记录包头开始的index
+	/**
+	 *  记录包头开始的index
+	 **/
 	private int beginReader = 0;
-	//匹配头数量
+	/**
+	 *  匹配头数量
+	 **/
 	private int countHeader;
-	//初始化GNSS解析信息ID
-	static Map<Short, String> msgIdMap = null;
-    //GNSS报文消息类
+	/**
+	 *  初始化GNSS解析信息ID
+	 **/
+	private static Map<Short, String> msgIdMap = null;
+
+	/**
+	 *  GNSS报文消息类
+	 **/
 	private IMMessage imMessage = new IMMessage();
 
-	//字节数组CRC校验
+	/**
+	 * 字节数组CRC校验
+	 **/
 	private byte[] bytesCrc = null;
-	//CRC校验失败统计
+
+	/**
+	 * CRC校验失败统计
+	 **/
 	private int countCrcFailure;
 
 	static {
 		msgIdMap = new HashMap();
-		/*msgIdMap.put(ParseKey.MSG_ID_43.getKey(),ParseKey.MSG_ID_43.getValue());*/
-		msgIdMap.put(ParseKey.MSG_ID_140.getKey(),ParseKey.MSG_ID_140.getValue());
+		msgIdMap.put(ParseKeyEnum.MSG_ID_43.getKey(), ParseKeyEnum.MSG_ID_43.getValue());
+		msgIdMap.put(ParseKeyEnum.MSG_ID_140.getKey(), ParseKeyEnum.MSG_ID_140.getValue());
 	}
 
 	/**
@@ -60,7 +76,7 @@ public class ServerMsgProcessor {
 		//头部信息匹配成功
 		if(imMessage.isHeaderMatch()) {
 			if (crcValidate(in)) {
-				IGnssParse gnssParseStrategy = GnssParseFactory.getGnssParseStrategy(ParseKey.MSG_ID_140.getKey());
+				IGnssParse gnssParseStrategy = GnssParseFactory.getGnssParseStrategy(ParseKeyEnum.MSG_ID_140.getKey());
 				gnssParseStrategy.gnssParse(in,imMessage);
 			}
 		}
@@ -167,7 +183,7 @@ public class ServerMsgProcessor {
 		bytesCrc = new byte[msgLength];
 		//获取发送的二进制数据
 		in.getBytes(beginReader,bytesCrc);
-		imMessage.setImBytes(bytesCrc);
+		/*imMessage.setImBytes(bytesCrc);*/
 		//通过公式计算发送的二进制数据CRC值
 		long readBytesCrc = CrcValidate.crc32(bytesCrc, bytesCrc.length);
 		boolean crcValidateResult = imMessage.getCrc() == readBytesCrc;
@@ -183,6 +199,9 @@ public class ServerMsgProcessor {
 
 		//保存每个报文的二进制文件
 		/*saveGnssFile(in,beginReader,msgLength);*/
+
+		saveGnssFile(in,beginReader,msgLength,imMessage.getImHeader().getMessageID(),true);
+
 		//重置当前读索引到数据解析前读索引
 		in.resetReaderIndex();
 		return true;
@@ -194,32 +213,31 @@ public class ServerMsgProcessor {
 	 * @param in:
 	 * @param beginReader:
 	 * @param msgLength:
+	 * @param isMessage: true读取完整报文，false只读取指定长度数据部分
 	 * @return: void
 	 **/
 	int num = 0;
-	public void saveGnssFile(ByteBuf in, int beginReader, int msgLength){
-			byte[] bytes = new byte[msgLength+4];
-			in.getBytes(beginReader,bytes);
-			String filePath = "C:\\Users\\gentl\\Desktop\\Todo\\WorkPlan\\GNSS\\GNSS_FILE\\GNSS_"+ ++num;
-			OutputStream os = null;
-			DataOutputStream dataOs = null;
-			try {
-				os = new FileOutputStream (filePath);
-				dataOs = new DataOutputStream(os);
-				dataOs.write(bytes);
+	public void saveGnssFile(ByteBuf in, int beginReader, int msgLength,int msgId, boolean isMessage){
+		String filename;
+		if(isMessage) {
+			msgLength += 4;
+			filename = "GNSS_" + msgId + "_" + ++num;
+		}else{
+			beginReader += 32;
+			filename = "GNSS_data_" + msgId + "_" + ++num;
+		}
+		byte[] bytes = new byte[msgLength];
+		in.getBytes(beginReader,bytes);
+		String filePath = "C:\\Users\\gentl\\Desktop\\Todo\\WorkPlan\\GNSS\\GNSS_FILE\\"+filename;
+		OutputStream os = null;
+		DataOutputStream dataOs = null;
+		try {
+			os = new FileOutputStream (filePath);
+			dataOs = new DataOutputStream(os);
+			dataOs.write(bytes);
 		} catch (IOException  e) {
 			e.printStackTrace();
 		}
 	}
-
-
-
-	public void readByteByNum(ByteBuf in,byte num){
-		byte data = 0;
-		for (int i = 0; i < num; i++) {
-			data +=  in.readByte();
-		}
-	}
-
 
 }

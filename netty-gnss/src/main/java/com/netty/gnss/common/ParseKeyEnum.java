@@ -11,7 +11,7 @@ import lombok.Getter;
  **/
 @Getter
 @AllArgsConstructor
-public enum ParseKey {
+public enum ParseKeyEnum {
 
     /**
      * 信息ID 43

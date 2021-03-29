@@ -1,6 +1,6 @@
 package com.netty.gnss.strategy;
 
-import com.netty.gnss.common.ParseKey;
+import com.netty.gnss.common.ParseKeyEnum;
 import com.netty.gnss.strategy.impl.RangeCmpParse;
 import com.netty.gnss.strategy.impl.RangeParse;
 
@@ -19,8 +19,8 @@ public class GnssParseFactory {
     private static Map<Short, IGnssParse> gnssParseMap = new HashMap<>();
 
     static {
-        gnssParseMap.put(ParseKey.MSG_ID_43.getKey(),new RangeParse());
-        gnssParseMap.put(ParseKey.MSG_ID_140.getKey(),new RangeCmpParse());
+        gnssParseMap.put(ParseKeyEnum.MSG_ID_43.getKey(),new RangeParse());
+        gnssParseMap.put(ParseKeyEnum.MSG_ID_140.getKey(),new RangeCmpParse());
     }
 
     public static IGnssParse getGnssParseStrategy(Short ParseKey)  {

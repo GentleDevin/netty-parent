@@ -11,6 +11,13 @@ import io.netty.buffer.ByteBuf;
  */
 public interface IGnssParse {
 
+    /**
+     * @Description:  数据解析
+     * @CreateDate: 2021/03/29 09:11:58
+     * @param in:
+     * @param imMessage:
+     * @return: void
+     **/
     void gnssParse(ByteBuf in, IMMessage imMessage);
 
 }

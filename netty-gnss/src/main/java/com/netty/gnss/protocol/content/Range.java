@@ -3,6 +3,8 @@ package com.netty.gnss.protocol.content;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * @Title: Range原始观测数据信息
  * @Description:
@@ -15,7 +17,7 @@ public class Range {
     /**
      * 卫星PRN号
      **/
-    private short prnOrSlot;
+    private String prnOrSlot;
     /**
      * （GLONASS 频率+ 7），
      * GPS，BDS 和 Galileo不使用
@@ -24,7 +26,7 @@ public class Range {
     /**
      * 码伪距测量值，m
      **/
-    private double psr;
+    private BigDecimal psr;
     /**
      * 码伪距标准差，m
      **/
@@ -32,7 +34,7 @@ public class Range {
     /**
     * 载波相位（积分多普勒）， 周
     **/
-    private double adr;
+    private BigDecimal adr;
     /**
      * 载波相位标准差，周
      **/
@@ -52,7 +54,7 @@ public class Range {
     /**
      *  通道跟踪状态
      **/
-    private int chTrStatus;
+    private ChTrStatus chTrStatus;
 }
 
 
